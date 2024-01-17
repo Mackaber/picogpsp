@@ -166,9 +166,14 @@ void handle_emu_action(emu_action action)
       toggle_fast_forward(1);
       update_backup();
 	  if (mmenu) {
-	  	ShowMenu_t ShowMenu = (ShowMenu_t)dlsym(mmenu, "ShowMenu");
+	  ShowMenuWithAutoSave_t ShowMenuWithAutoSave = (ShowMenuWithAutoSave_t)dlsym(mmenu, "ShowMenuWithAutoSave");
 		SDL_Surface *screen = SDL_GetVideoSurface();
-		MenuReturnStatus status = ShowMenu(rom_path, save_template_path, screen, kMenuEventKeyDown);
+    
+    char state_filename[MAXPATHLEN];
+    gamepak_related_name(state_filename, MAXPATHLEN, ".st_auto");
+    save_state_filename(state_filename); // Autosave!
+
+    MenuReturnStatus status = ShowMenuWithAutoSave(rom_path, save_template_path, state_filename, screen, kMenuEventKeyDown);
 
 	  	if (status==kStatusExitGame) {
 			should_quit = 1;
@@ -260,14 +265,10 @@ void print_hud()
   }
 }
 
-int save_state_file(unsigned state_slot)
-{
-  char state_filename[MAXPATHLEN];
+int save_state_filename(char *state_filename) {
   void *data;
   FILE *f;
   int ret = 0;
-  state_file_name(state_filename, MAXPATHLEN, state_slot);
-
   f = fopen(state_filename, "wb");
 
   if (!f)
@@ -294,6 +295,14 @@ fail:
 
   sync();
   return ret;
+}
+
+int save_state_file(unsigned state_slot)
+{
+  char state_filename[MAXPATHLEN];
+  state_file_name(state_filename, MAXPATHLEN, state_slot);
+
+  return save_state_filename(state_filename);
 }
 
 int load_state_file(unsigned state_slot)

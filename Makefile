@@ -5,7 +5,7 @@
 
 # Global definitions
 
-CROSS_COMPILE := /opt/trimui-toolchain/bin/arm-buildroot-linux-gnueabi-
+CROSS_COMPILE := /opt/trimui-toolchain/usr/bin/arm-buildroot-linux-gnueabi-
 
 CC        = $(CROSS_COMPILE)gcc
 SYSROOT   = $(shell $(CC) --print-sysroot)
